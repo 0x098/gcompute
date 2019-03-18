@@ -48,7 +48,7 @@ function self:ctor (container)
 			return a.HookData.CallCount > b.HookData.CallCount
 		end
 	)
-	
+
 	self.Hooks = {}
 	self.LastSortTime = SysTime ()
 end
@@ -71,10 +71,10 @@ function self:CreateHookData (eventName, hookName)
 	hookData.OriginalHandler = nil
 	hookData.CallCount       = 0
 	hookData.Time            = 0
-	
+
 	hookData.LastFrame       = CurTime ()
 	hookData.LastFrameTime   = 0
-	
+
 	hookData.DeltaFPS        = 0
 	return hookData
 end
@@ -83,31 +83,27 @@ function self:Start ()
 	for eventName, hookTable in pairs (hook.GetTable ()) do
 		self.Hooks [eventName] = self.Hooks [eventName] or {}
 		for hookName, handler in pairs (hookTable) do
-			if type (hookName) == "string" or
-			   type (hookName) == "number" or
-			   hookName:IsValid () then
-				local hookData = self.Hooks [eventName] [hookName] or self:CreateHookData (eventName, hookName)
-				self.Hooks [eventName] [hookName] = hookData
-				hookData.CallCount = 0
-				hookData.Time = 0
-				if not hookData.OriginalHandler then
-					hookData.OriginalHandler = handler
-				end
-				hook.Add (eventName, hookName,
-					function (...)
-						local startTime = SysTime ()
-						hookData.CallCount = hookData.CallCount + 1
-						local a, b, c, d, e, f, g, h = hookData.OriginalHandler (...)
-						hookData.Time = hookData.Time + SysTime () - startTime
-						if CurTime () ~= hookData.LastFrame then
-							hookData.LastFrame = CurTime ()
-							hookData.LastFrameTime = 0
-						end
-						hookData.LastFrameTime = hookData.LastFrameTime + SysTime () - startTime
-						return a, b, c, d, e, f, g, h
-					end
-				)
+			local hookData = self.Hooks [eventName] [hookName] or self:CreateHookData (eventName, hookName)
+			self.Hooks [eventName] [hookName] = hookData
+			hookData.CallCount = 0
+			hookData.Time = 0
+			if not hookData.OriginalHandler then
+				hookData.OriginalHandler = handler
 			end
+			hook.Add (eventName, hookName,
+				function (...)
+					local startTime = SysTime ()
+					hookData.CallCount = hookData.CallCount + 1
+					local a, b, c, d, e, f, g, h = hookData.OriginalHandler (...)
+					hookData.Time = hookData.Time + SysTime () - startTime
+					if CurTime () ~= hookData.LastFrame then
+						hookData.LastFrame = CurTime ()
+						hookData.LastFrameTime = 0
+					end
+					hookData.LastFrameTime = hookData.LastFrameTime + SysTime () - startTime
+					return a, b, c, d, e, f, g, h
+				end
+			)
 		end
 	end
 end
@@ -133,14 +129,14 @@ function self:UpdateHookData (hookData)
 		local listViewItem = self.ListView:AddItem (tostring (hookData))
 		listViewItem:SetText (tostring (hookData.EventName))
 		listViewItem:SetColumnText ("ID", tostring (hookData.HookName))
-		
+
 		listViewItem.HookData = hookData
 		hookData.ListViewItem = listViewItem
 	end
-	
+
 	hookData.ListViewItem:SetColumnText ("Calls", tostring (hookData.CallCount))
 	hookData.ListViewItem:SetColumnText ("Frame Time (ms)", string.format ("%.3f", (hookData.LastFrameTime) * 1000))
-	
+
 	local currentFPS = 1 / FrameTime ()
 	local higherFPS = 1 / (FrameTime () - hookData.LastFrameTime)
 	hookData.DeltaFPS = higherFPS - currentFPS
