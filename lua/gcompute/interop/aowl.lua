@@ -94,10 +94,10 @@ local function RegisterAowlCommands ()
 					expression = string.sub (expression, string.find (expression, target, 1, true) + (#target + 1))
 					target = easylua.FindEntity (target)
 					
-					if type (target) == "table" and target.get then
+					if TypeID(target) == TYPE_USERDATA then
 						local targets = {}
 						
-						for _, pl in next, target.get() do
+						for _, pl in next, target() do
 							targets[#targets+1] = GLib.GetPlayerId (pl)
 						end
 						
