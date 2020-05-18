@@ -75,6 +75,7 @@ function self:ctor (gluaExecutionContext, instanceOptions)
 			self.LuaCompiler:AddUpvalue ("here",  ownerEntity:GetPos ())
 			self.LuaCompiler:AddUpvalue ("there", ownerEntity:GetEyeTrace ().HitPos)
 			self.LuaCompiler:AddUpvalue ("this",  ownerEntity:GetEyeTrace ().Entity)
+			self.LuaCompiler:AddUpvalue ("wep", ownerEntity:GetActiveWeapon())
 		end
 	end
 end
