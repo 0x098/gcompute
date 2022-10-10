@@ -2,6 +2,8 @@ local self = GCompute.IDE.Plugins:Create ("Metastruct.COH")
 
 CreateClientConVar ("gcompute_editor_5ever", 1, true, false)
 
+local mode = CreateClientConVar ("rtchat_gcompute", 1, true, true)
+
 function self:ctor (ideFrame)
 	self.IDEFrame = ideFrame
 	self.TypingCode = false
@@ -95,10 +97,15 @@ function self:UpdateChatStatus ()
 			self.TypingCode = true
 		end
 		local code = self.ActiveCodeEditor:GetText ()
-		if #code > 4096 then
-			code = string.sub (code, 1, GLib.UTF8.GetSequenceStart (code, 4097) - 1) .. "..."
+		if mode:GetInt () == 0 then
+			local _, c = code:gsub ("\n", "\n")
+			coh.SendTypedMessage (string.format ("[GCompute Editor (%d lines)]", c + 1))
+		else
+			if #code > 4096 then
+				code = string.sub (code, 1, GLib.UTF8.GetSequenceStart (code, 4097) - 1) .. "..."
+			end
+			coh.SendTypedMessage (code)
 		end
-		coh.SendTypedMessage (code)
 	else
 		if self.TypingCode then
 			coh.FinishChat ()
